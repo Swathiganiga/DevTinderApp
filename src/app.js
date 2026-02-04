@@ -7,6 +7,7 @@ const app = express();
 //middleware to parse JSON request bodies
 app.use(express.json());
 
+//API to create new user
 app.post('/signup', async (req, res) => {
     //creating new instance of user model
     const user = new User(req.body)
@@ -20,6 +21,31 @@ app.post('/signup', async (req, res) => {
         return;
     }
 
+})
+
+//API to get user by email
+app.get('/user', async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(404).send('User not found');
+        } 
+        res.send(user);
+    } catch (err) {
+        console.error('Error fetching user:', err);
+        res.status(500).send(err);
+    }
+})  
+
+//API TO GET ALL USERS
+app.get('/feed', async (req, res) => {
+    try {
+        const users = await User.find({});
+        res.send(users);
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.status(500).send(err);
+    }
 })
 
 connectDB().then(() => {
@@ -39,14 +65,4 @@ connectDB().then(() => {
 
 app.use("/hello", (req, res) => {
     res.send("hello");
-})
-// app.use("/",(req,res)=>{
-//     res.send("Hello World from Express.js dashboard!");
-// })
-
-app.get("/user", (req, res) => {
-    res.json({ name: "John", age: 30 });
-})
-app.post("/user", (req, res) => {
-    res.json({ status: "Data received" });
 })
